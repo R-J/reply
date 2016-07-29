@@ -3,18 +3,18 @@
 $PluginInfo['reply'] = [
     'Name' => 'Reply',
     'Description' => 'Adds an icon "Reply" to posts which scrolls screen to commentbox and inserts "@authorname". It also adds a link to send author a PM. Initial idea is based on the plugin EasyReply written by @andelf.',
-    'Version' => '0.1',
+    'Version' => '0.2',
     'RequiredApplications' => ['Vanilla' => '>=2.2'],
     'MobileFriendly' => true,
     'HasLocale' => true,
     'Author' => 'Robin Jurinka',
-    'AuthorUrl' => 'https://vanillaforums.org/profile/R_J',
+    'AuthorUrl' => 'https://vanillaforums.org/profile/r_j',
     'License' => 'MIT'
 ];
 /**
  * Add links to quickly reply to a post.
  *
- * This plugin adds to links below each comment and each discussion: "Send PM"
+ * This plugin adds two links below each comment and each discussion: "Send PM"
  * and "Reply". Send PM will redirect to /messages/add/username/discussionname
  * which creates a new conversation with the author of the post as the recipient
  * and the title of the discussion as the subject.
@@ -52,7 +52,7 @@ class ReplyPlugin extends Gdn_Plugin {
             echo wrap(
                 anchor(
                     t('Send PM').'<i class="icon icon-mail"> </i>',
-                    url('messages/add/'.urlencode($args['Author']->Name).'/'.$args['Discussion']->Name),
+                    'messages/add/'.urlencode($args['Author']->Name).'/'.$args['Discussion']->Name,
                     ['class' => 'ReplyPM']
                 ),
                 'span',
@@ -65,7 +65,7 @@ class ReplyPlugin extends Gdn_Plugin {
             echo wrap(
                 anchor(
                     t('Reply').'<i class="icon icon-reply"> </i>',
-                    url('post/comment/'.$args['Discussion']->DiscussionID.'/'.urlencode($args['Author']->Name)),
+                    'post/comment/'.$args['Discussion']->DiscussionID.'/'.urlencode($args['Author']->Name),
                     ['class' => 'ReplyComment']
                 ),
                 'span',
