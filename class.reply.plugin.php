@@ -3,7 +3,7 @@
 $PluginInfo['reply'] = [
     'Name' => 'Reply',
     'Description' => 'Adds an icon "Reply" to posts which scrolls screen to commentbox and inserts "@authorname". It also adds a link to send author a PM. Initial idea is based on the plugin EasyReply written by @andelf.',
-    'Version' => '0.2',
+    'Version' => '0.3',
     'RequiredApplications' => ['Vanilla' => '>=2.2'],
     'MobileFriendly' => true,
     'HasLocale' => true,
@@ -30,10 +30,29 @@ class ReplyPlugin extends Gdn_Plugin {
      * @return void.
      */
     public function discussionController_render_before($sender) {
+        if (!Gdn::session()->isValid()) {
+            return;
+        }
         if (c('reply.Comment', true) == true) {
             $sender->addJsFile('reply.js', 'plugins/reply');
         }
         $sender->addCssFile('reply.css', 'plugins/reply');
+    }
+
+    /**
+     * Add CSS class "Mine" to discussion if session user is the author.
+     *
+     * Add the same css class to discussions as there is for comments so that
+     * reply buttons can be hidden by css for users own posts.
+     *
+     * @param discussionController $sender Instance of the calling class.
+     * @param array $args Event arguments.
+     * @return void.
+     */
+    public function discussionController_beforeDiscussionDisplay_handler($sender, $args) {
+        if (Gdn::session()->UserID == $args['Author']->UserID) {
+            $args['CssClass'] .= ' Mine';
+        }
     }
 
     /**
@@ -44,6 +63,9 @@ class ReplyPlugin extends Gdn_Plugin {
      * @return void.
      */
     public function discussionController_replies_handler($sender, $args) {
+        if (!Gdn::session()->isValid()) {
+            return;
+        }
         echo '<div class="Reply">';
 
         // Insert new message link which will be addressed to the comment
@@ -52,7 +74,7 @@ class ReplyPlugin extends Gdn_Plugin {
             echo wrap(
                 anchor(
                     t('Send PM').'<i class="icon icon-mail"> </i>',
-                    'messages/add/'.urlencode($args['Author']->Name).'/'.$args['Discussion']->Name,
+                    'messages/add/'.rawurlencode($args['Author']->Name).'/'.$args['Discussion']->Name,
                     ['class' => 'ReplyPM']
                 ),
                 'span',
@@ -65,7 +87,7 @@ class ReplyPlugin extends Gdn_Plugin {
             echo wrap(
                 anchor(
                     t('Reply').'<i class="icon icon-reply"> </i>',
-                    'post/comment/'.$args['Discussion']->DiscussionID.'/'.urlencode($args['Author']->Name),
+                    'post/comment/'.$args['Discussion']->DiscussionID.'/'.rawurlencode($args['Author']->Name),
                     ['class' => 'ReplyComment']
                 ),
                 'span',
